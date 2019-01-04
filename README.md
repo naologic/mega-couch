@@ -17,6 +17,12 @@ Objectives
   + have both Promise and Observable as reponse types  (function name example: `db.get()` and `db.get$()` -- where `$` marks the observable)
   + add dev friendly functions: `databaseExists`, `dbCreate`... etc
   + add fail/silent to friendly functions: `dbCreate` // `dbCreateOrThrow` // `dbCreateNoFail`
+  + chain friendly query for `params` ex: `limit(100).heartbeat(5000).descending().ids([])`
+  
+Extras:
+  + add a `migration` object to define databases that we ensure exist
+  + add design and view docs
+  
   
   
   
