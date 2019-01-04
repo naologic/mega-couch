@@ -16,6 +16,7 @@ Objectives
   + support websockets for `_changes`
   + have both Promise and Observable as reponse types  (function name example: `db.get()` and `db.get$()` -- where `$` marks the observable)
   + add dev friendly functions: `databaseExists`, `dbCreate`... etc
+  + add fail/silent to friendly functions: `dbCreate` // `dbCreateOrThrow` // `dbCreateNoFail`
   
   
   
