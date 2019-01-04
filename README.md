@@ -20,11 +20,14 @@ Objectives
   + chain friendly query for `params` ex: `limit(100).heartbeat(5000).descending().ids([])`
   + `query`, `_find`, `_list` functions **MUST** respond in the same format
   + `list` has it's on `QueryList` with chained params: `limit(12).skip(14)...`
+  + `_design` doc firendly listing/viewing/query. Exclude all system docs that start with `_`
+  + add a `reserved` prefix for doc id so we make our own system docs (can't use `_`)
   
   
 Extras:
   + add a `migration` object to define databases that we ensure exist
   + add design and view docs
+  + add indexes
   
   
   
