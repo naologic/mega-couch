@@ -13,6 +13,9 @@ Objectives
   + ability to migrate documents only by bulk writing
   + full support for design docs, view docs, update docs
   + ability to select couchdb or couchbase as a connector or connect to both
+  + support websockets for `_changes`
+  + have both Promise and Observable as reponse types  (function name example: `db.get()` and `db.get$()` -- where `$` marks the observable)
+  
   
   
 Publish to `npm` and create a `nestjs` plugin as well
