@@ -18,6 +18,9 @@ Objectives
   + add dev friendly functions: `databaseExists`, `dbCreate`... etc
   + add fail/silent to friendly functions: `dbCreate` // `dbCreateOrThrow` // `dbCreateNoFail`
   + chain friendly query for `params` ex: `limit(100).heartbeat(5000).descending().ids([])`
+  + `query`, `_find`, `_list` functions **MUST** respond in the same format
+  + `list` has it's on `QueryList` with chained params: `limit(12).skip(14)...`
+  
   
 Extras:
   + add a `migration` object to define databases that we ensure exist
