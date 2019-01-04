@@ -15,6 +15,7 @@ Objectives
   + ability to select couchdb or couchbase as a connector or connect to both
   + support websockets for `_changes`
   + have both Promise and Observable as reponse types  (function name example: `db.get()` and `db.get$()` -- where `$` marks the observable)
+  + add dev friendly functions: `databaseExists`, `dbCreate`... etc
   
   
   
