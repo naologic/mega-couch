@@ -1,41 +1,15 @@
-import { Injectable } from '@nestjs/common';
-import { DocumentScope } from 'nano';
-import { join } from 'path';
 import axios, { AxiosRequestConfig } from 'axios';
 import { isNumber, merge } from 'lodash';
-import { throwError } from 'rxjs';
 import { Couch2Db } from './couch2.db';
 import { logg } from '../../system/utils';
-import { MegaDatabaseInfo } from './couchdb.interface';
+import { MegaCouchServerConfig, MegaCouchDatabaseInfo, MegaCouchDocument } from './couchdb.interface';
 
-/**
- * Using the CouchDB provider
- *
- *    @app.module
- *      DatabaseModule.forRoot([
- *         { db: 'CouchDb' }
- *      ])
- *
- *    @provider
- *    {
- *       provide: 'couchDb',
- *       useFactory: async () => {
- *         const conn = new CouchDb();
- *         return await conn.init();
- *       }
- *    }
- *
- *    @.env
- *         COUCH_URL_1=xxxxxx:5984
- *         COUCH_USER=xxxxxxx
- *         COUCH_PASSWORD=xxxxxxxxx
- *
- */
+
 
 export class Couch2Server {
   public readonly config;
 
-  constructor(config?, options?) {
+  constructor(config?: MegaCouchServerConfig, options?) {
     let url = '';
     if (config) {
       url = `${config.host}://${config.user}:${config.password}@${config.url}:${config.port}`;
@@ -95,13 +69,13 @@ export class Couch2Server {
   /**
    * Check if a database exists
    */
-  public async dbInfo(dbName: string): Promise<MegaDatabaseInfo> {
+  public async dbInfo(dbName: string): Promise<MegaCouchDatabaseInfo> {
     // -->Check: db name
     dbName = this.checkDatabaseName(dbName);
 
     try {
       // -->Get: rev limit
-      return await this.get<MegaDatabaseInfo>(`${dbName}`);
+      return await this.get<MegaCouchDatabaseInfo>(`${dbName}`);
     } catch (error) {
       return null;
     }
@@ -145,37 +119,51 @@ export class Couch2Server {
     }
   }
 
-  public async get<T>(requestUrl: string, config?: AxiosRequestConfig): Promise<T> {
-    return this.sendRequest<T>(requestUrl, {
-      method: 'GET'
-    }, false);
+  public async head<T>(requestUrl: string, config: AxiosRequestConfig = {}): Promise<T> {
+    // -->Set: method
+    config.method = 'HEAD';
+
+    return this.sendRequest<T>(requestUrl, config, true);
   }
 
-  public async post<T>(requestUrl: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
-    return this.sendRequest<T>(requestUrl, {
-      method: 'POST',
-      data
-    }, false);
+  public async get<T>(requestUrl: string, config: AxiosRequestConfig = {}): Promise<T> {
+    // -->Set: method
+    config.method = 'GET';
+
+    return this.sendRequest<T>(requestUrl, config, false);
   }
 
-  public async delete<T>(requestUrl: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
-    return this.sendRequest<T>(requestUrl, {
-      method: 'DELETE'
-    }, false);
+  public async post<T>(requestUrl: string, data?: any, config: AxiosRequestConfig = {}): Promise<T> {
+    // -->Set: method
+    config.method = 'POST';
+    config.data = data;
+
+    return this.sendRequest<T>(requestUrl, config, false);
   }
 
-  public async put<T>(requestUrl: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
-    return this.sendRequest<T>(requestUrl, {
-      method: 'PUT',
-      data
-    }, false);
+  public async put<T>(requestUrl: string, data?: any, config: AxiosRequestConfig = {}): Promise<T> {
+    // -->Set: method
+    config.method = 'PUT';
+    config.data = data;
+
+    return this.sendRequest<T>(requestUrl, config, false);
   }
 
-  public async head<T>(requestUrl: string, config?: AxiosRequestConfig): Promise<T> {
-    return this.sendRequest<T>(requestUrl, {
-      method: 'HEAD'
-    }, false);
+  public async delete<T>(requestUrl: string, config: AxiosRequestConfig = {}): Promise<T> {
+    // -->Set: method
+    config.method = 'DELETE';
+
+    return this.sendRequest<T>(requestUrl, config, false);
   }
+
+  public async copy<T>(requestUrl: string, config: AxiosRequestConfig = {}): Promise<T> {
+    // -->Set: method
+    config.method = 'COPY';
+
+    return this.sendRequest<T>(requestUrl, config, false);
+  }
+
+
 
   /**
    * Send a request to the server
@@ -189,13 +177,14 @@ export class Couch2Server {
     const defaultConfig: AxiosRequestConfig = {
       headers: { 'Content-Type': 'application/json' },
       responseType: 'json',
-      baseURL: `${this.config.url}/`
+      baseURL: `${this.config.url}/`,
+      url: requestUrl
     };
 
     // -->Make: config
-    const requestConfig: AxiosRequestConfig = merge<AxiosRequestConfig, AxiosRequestConfig, AxiosRequestConfig, AxiosRequestConfig>({}, defaultConfig, config || {}, {url: requestUrl});
+    const requestConfig: AxiosRequestConfig = merge<AxiosRequestConfig, AxiosRequestConfig>(defaultConfig, config || {});
 
-    logg(requestConfig.method, requestUrl);
+    logg(requestConfig, requestUrl);
 
     try {
       // -->Make: request
@@ -252,6 +241,31 @@ export class Couch2Server {
     }
   }
 
+  /**
+   * Get UUID from the couch server
+   */
+  public async getUUID(): Promise<string> {
+    return this.getUUIDs(1)
+      .then(d => {
+        if (Array.isArray(d)) {
+          return d[0];
+        }
+      });
+  }
+
+  /**
+   * Get UUIDs from the couch server
+   * @param count
+   */
+  public async getUUIDs(count = 1): Promise<string[]> {
+    return this.get<{uuids: string[]}>(`_uuids`, {params: {count}})
+      .then(uuids => {
+        if (uuids && Array.isArray(uuids.uuids)) {
+          return uuids.uuids;
+        }
+        return null;
+      });
+  }
 
   /**
    * Check the syntax of the db name

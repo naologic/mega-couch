@@ -8,11 +8,45 @@ export interface MegaCreateDBRequest {
   // nada
 }
 
-export interface MegaDocument {
-  _id: string;
-  _rev: string;
-  _revisions?: MegaDocumentRevisionList;
+export interface MegaCouchServerConfig {
+  host: string;
+  user: string;
+  password: string;
+  url: string;
+  port: number;
+  localPort?: number; // only needed for clusters
+}
+
+export interface MegaCouchDocument {
+  _id?: string; // (string) – Document ID
+  _rev?: string; // (string) – Revision MVCC token
+  _deleted?: boolean; // (boolean) – Deletion flag. Available if document was removed
+  _attachments?: any; // (object) – Attachment’s stubs. Available if document has any attachments todo: replace any with correct interface
+  _conflicts?: any[]; // (array) – List of conflicted revisions. Available if requested with conflicts=true query parameter todo: replace any with correct interface
+  _deleted_conflicts?: any[]; // (array) – List of deleted conflicted revisions. Available if requested with deleted_conflicts=true query parameter todo: replace any with correct interface
+  _local_seq?: string; // (string) – Document’s update sequence in current database. Available if requested with local_seq=true query parameter
+  _revs_info?: any[]; // (array) – List of objects with information about local revisions and their status. Available if requested with open_revs query parameter todo: replace any with correct interface
+  _revisions?: MegaCouchDocumentRevisionList; // (object) – List of local revision tokens without. Available if requested with revs=true query parameter todo: replace any with correct interface
+
   [index: string]: any;
+}
+
+export interface MegaCouchDocumentInfo {
+  status: number;
+  statusText: string; // 'OK';
+  headers:{
+    'cache-control': string; // 'must-revalidate';
+    connection: string; // 'close';
+    'content-length': string; // '92';
+    'content-type': string; // 'application/json';
+    date: string; // 'Sun; 06 Jan 2019 13:40:14 GMT';
+    etag: string; // '"2-0d2e30d5d91ff4059add4c701a4e6861"';
+    server: string; // 'CouchDB/2.3.0 (Erlang OTP/19)';
+    'x-couch-request-id': string; // '28bbb9e455';
+    'x-couchdb-body-time': string; // '0'
+  };
+  _id?: string;
+  _rev?: string;
 }
 
 export interface MegaDocumentCreated {
@@ -21,20 +55,46 @@ export interface MegaDocumentCreated {
   ok: boolean;
   error?: string; // "error" : "conflict",
   reason?: string; // "reason" : "Document update conflict."
+  note?: string; // a note regarding the save
+}
+
+export interface MegaCouchDocumentOptions {
+  full_commit?: boolean; // custom option: set the full commit flag to override the internal policy
+}
+
+export interface MegaCouchDocumentGetParams {
+  attachments?: boolean; // (boolean) – Includes attachments bodies in response. Default is false
+  att_encoding_info?: boolean; // (boolean) – Includes encoding information in attachment stubs if the particular attachment is compressed. Default is false.
+  atts_since?: string[]; // (array) – Includes attachments only since specified revisions. Doesn’t includes attachments for specified revisions. Optional
+  conflicts?: boolean; // (boolean) – Includes information about conflicts in document. Default is false
+  deleted_conflicts?: boolean; // (boolean) – Includes information about deleted conflicted revisions. Default is false
+  latest?: boolean; // (boolean) – Forces retrieving latest “leaf” revision, no matter what rev was requested. Default is false
+  local_seq?: boolean; // (boolean) – Includes last update sequence for the document. Default is false
+  meta?: boolean; // (boolean) – Acts same as specifying all conflicts, deleted_conflicts and revs_info query parameters. Default is false
+  open_revs?: 'all'|string[]; // (array) – Retrieves documents of specified leaf revisions. Additionally, it accepts value as all to return all leaf revisions. Optional
+  rev?: string; // (string) – Retrieves document of specified revision. Optional
+  revs?: boolean; // (boolean) – Includes list of all known document revisions. Default is false
+  revs_info?: boolean; // (boolean) – Includes detailed information for all known document revisions. Default is false
+}
+
+export interface MegaCouchDocumentPutParams {
+  rev?: string; // (string) – Document’s revision if updating an existing document. Alternative to If-Match header or document key. Optional
+  batch?: string; // (string) – Stores document in batch mode. Possible values: ok. Optional
+  new_edits?: boolean; // (boolean) – Prevents insertion of a conflicting document. Possible values: true (default) and false. If false, a well-formed _rev must be included in the document. new_edits=false is used by the replicator to insert documents into the target database even if that leads to the creation of conflicts. Optional
 }
 
 export interface MegaDatabaseBulkGetRaw {
-  results: MegaDatabaseBulkGetDoc[];
+  results: MegaCouchDatabaseBulkGetDoc[];
 }
 
-export interface MegaDatabaseBulkGetDoc {
+export interface MegaCouchDatabaseBulkGetDoc {
   id: string;
   docs: {
-    ok: MegaDocument // OK is the content of the doc
+    ok: MegaCouchDocument // OK is the content of the doc
   }[];
 }
 
-export interface MegaDatabaseAllDocs {
+export interface MegaCouchDatabaseAllDocs {
   total_rows: number;
   rows: {
     value: {
@@ -46,7 +106,7 @@ export interface MegaDatabaseAllDocs {
   offset: string;
 }
 
-export interface MegaDatabaseInfo {
+export interface MegaCouchDatabaseInfo {
   cluster: {
     n: number; // (number) – Replicas. The number of copies of every document.
     q: number; // (number) – Shards. The number of range partitions.
@@ -95,7 +155,7 @@ export interface MegaDatabaseInfo {
  *
  *
  */
-export interface MegaDocumentRevisionList {
+export interface MegaCouchDocumentRevisionList {
   start: number;
   ids: string[];
 }
@@ -167,12 +227,55 @@ export interface MegaQueryFind {
 }
 
 export interface MegaQueryFindResponse {
-  docs: MegaDocument[];
+  docs: MegaCouchDocument[];
   execution_stats: {
     total_keys_examined: number;
     total_docs_examined: number;
     total_quorum_docs_examined: number;
     results_returned: number;
     execution_time_ms: number;
+  };
+}
+
+export interface MegaQueryExplainFindResponse {
+  dbname: string;
+
+  index: {
+    ddoc: string;
+    name: string;
+    type: string;
+    def: {
+      fields: any[];
+    }
+  };
+
+  selector: MegaQuerySelector; // (json) – JSON object describing criteria used to select documents. More information provided in the section on selector syntax. Required
+
+  limit?: number; // (number) – Maximum number of results returned. Default is 25. Optional
+
+  skip?: number; //  (number) – Skip the first ‘n’ results, where ‘n’ is the value specified. Optional
+
+  fields: string[];
+
+  range: {
+    start_key: any[];
+    end_key: any[];
+  };
+  opts: {
+    use_index?: string | [string, string];
+
+    bookmark?: string; //  (string) – A string that enables you to specify which page of results you require. Default null
+
+    limit?: number; // (number) – Maximum number of results returned. Default is 25. Optional
+
+    skip?: number; //  (number) – Skip the first ‘n’ results, where ‘n’ is the value specified. Optional
+
+    sort?: MegaQuerySortOrder[]; // (json) – JSON array following sort syntax. Optional
+
+    fields: string[];
+
+    r: number[];
+
+    conflicts: boolean;
   };
 }
