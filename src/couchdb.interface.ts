@@ -78,7 +78,8 @@ export interface MegaCouchDocumentGetParams {
 }
 
 export interface MegaCouchDocumentPutParams {
-  rev?: string; // (string) – Document’s revision if updating an existing document. Alternative to If-Match header or document key. Optional
+  id: string;
+  rev: string; // (string) – Document’s revision if updating an existing document. Alternative to If-Match header or document key. Optional
   batch?: string; // (string) – Stores document in batch mode. Possible values: ok. Optional
   new_edits?: boolean; // (boolean) – Prevents insertion of a conflicting document. Possible values: true (default) and false. If false, a well-formed _rev must be included in the document. new_edits=false is used by the replicator to insert documents into the target database even if that leads to the creation of conflicts. Optional
 }

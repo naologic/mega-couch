@@ -125,6 +125,21 @@ export class Couch2Server {
 
     return this.sendRequest<T>(requestUrl, config, true);
   }
+  public async checkConnection(): Promise<string> {
+    const config = {method: 'GET'};
+    try {
+      await this.sendRequest('', config, false);
+      return 'ok';
+    } catch (err) {
+        if (!err.response) {
+          Promise.reject('Connection to the server could not be established. Please check that the server is running and your config is correct');
+        } else if (err.reponse.status === 401) {
+          Promise.reject('Unauthorized, please check credentials');
+        } else {
+          Promise.reject('An unexpected error occured');
+        }
+    }
+  }
 
   public async get<T>(requestUrl: string, config: AxiosRequestConfig = {}): Promise<T> {
     // -->Set: method
@@ -194,7 +209,7 @@ export class Couch2Server {
           return returnRaw ? response : response.data;
         })
         .catch(err => {
-
+         
           return Promise.reject(err);
         });
     } catch (error) {
