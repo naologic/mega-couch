@@ -127,7 +127,7 @@ export class Couch2Db {
     return this.server.post(`${this.name}/_bulk_docs`, {docs});
   }
 
-  public async bulkUpdatetRaw(docs?: MegaCouchDocument[]): Promise<MegaDocumentCreated[]> {
+  public async bulkUpdateRaw(docs?: MegaCouchDocument[]): Promise<MegaDocumentCreated[]> {
     return this.server.post(`${this.name}/_bulk_docs`, {docs});
   }
 

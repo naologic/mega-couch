@@ -112,3 +112,148 @@ const newdb$ = couchServer.use('starbucksnew');
 // -->Get documents from databse
 const allDocs = await newdb$.bulkGetRaw();
 ```
+
+## bulkGet()
+Returns all the documents in bulk
+> `bulkGet(docs?: {id: string, rev?: string, atts_since?: string}[], listAllRevs = false, removeSystemDocs = false): Promise<MegaCouchDocument[]>`
+
+- `docs` (array)
+- `listAllRevs` (boolean)
+- `removeSystemDocs` (boolean)
+
+```typescript
+// -->Use: a new db
+const newdb$ = couchServer.use('starbucksnew');
+// -->Get documents from databse
+const allDocs = await newdb$.bulkGet();
+```
+
+## bulkInsertRaw()
+Creates multiple documents at the same time within a single request
+
+> `bulkInsertRaw(docs?: MegaCouchDocument[]): Promise<MegaDocumentCreated[]>`
+
+- `docs` (array)
+
+```typescript
+// -->Use: a new db
+const newdb$ = couchServer.use('starbucksnew');
+// -->Insert documents in database
+const insertDocs = await newdb$.bulkInsertRaw();
+```
+
+## bulkUpdateRaw()
+Updates multiple documents at the same time within a single request
+
+> `bulkUpdateRaw(docs?: MegaCouchDocument[]): Promise<MegaDocumentCreated[]>`
+
+- `docs` (array)
+
+```typescript
+// -->Use: a new db
+const newdb$ = couchServer.use('starbucksnew');
+// -->Update documents in database
+const updateDocs = await newdb$.bulkUpdateRaw();
+```
+
+## docInfo()
+Gets information on the specified document
+
+> `docInfo(docId: string): Promise<MegaCouchDocumentInfo>`
+
+- `docId` (string)
+
+```typescript
+// -->Use: a new db
+const newdb$ = couchServer.use('starbucksnew');
+// -->Get doc info
+const docInfo = await newdb$.docInfo();
+```
+
+## docGet()
+Gets a document from the database
+
+> `docGet<T>(docId: string, params?: MegaCouchDocumentGetParams): Promise<MegaCouchDocument & T>`
+
+- `docId` (string)
+- `params`
+
+```typescript
+// -->Use: a new db
+const newdb$ = couchServer.use('starbucksnew');
+// -->Get document
+const doc = await newdb$.docGet();
+```
+
+## docGetOrThrow()
+Gets a document from the database or throw an error if not found
+
+> `docGetOrThrow<T>(docId: string, params?: MegaCouchDocumentGetParams):
+> Promise<MegaCouchDocument & T>`
+
+- `docId` (string)
+- `params` Optional
+
+```typescript
+// -->Use: a new db
+const newdb$ = couchServer.use('starbucksnew');
+// -->Get document
+const doc = await newdb$.docGetOrThrow();
+```
+
+## exists()
+Check if a document exists
+> `docExists(docId: string): Promise<boolean>`
+
+- `docId` (string)
+
+```typescript
+// -->Use: a new db
+const newdb$ = couchServer.use('starbucksnew');
+// -->Check: if it exists
+const docExists = await newdb$.exists();
+```
+
+## docCreate()
+Create a document
+> `docCreate(data: MegaCouchDocument, params?: MegaCouchDocumentPutParams):Promise<MegaDocumentCreated>`
+
+- `data`
+- `params` Optional
+
+```typescript
+// -->Use: a new db
+const newdb$ = couchServer.use('starbucksnew');
+// -->Create:
+const newDoc = await newdb$.docCreate();
+```
+
+## docCreateWithId()
+Create a document with a fixed ID
+> `docCreateWithId(docId: string, data: MegaCouchDocument, params?: MegaCouchDocumentPutParams): Promise<MegaDocumentCreated>`
+
+- `docId` (string)
+- `data`
+- `params` Optional
+
+```typescript
+// -->Use: a new db
+const newdb$ = couchServer.use('starbucksnew');
+// -->Create:
+const newDoc = await newdb$.docCreateWithId();
+```
+
+## docUpdate()
+Update an existing document
+> `docUpdate(docId: string, data: MegaCouchDocument, params: MegaCouchDocumentPutParams): Promise<MegaDocumentCreated>`
+
+- `docId` (string)
+- `data`
+- `params` 
+
+```typescript
+// -->Use: a new db
+const newdb$ = couchServer.use('starbucksnew');
+// -->Create:
+const newDoc = await newdb$.docCreateWithId();
+```
