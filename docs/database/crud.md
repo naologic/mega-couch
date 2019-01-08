@@ -72,3 +72,43 @@ const newdb$ = couchServer.use('starbucksnew');
 // -->Check: if it exists
 const exists = await newdb$.exists();
 ```
+
+## allDocs()
+Returns all the documents in the database
+> `allDocs(keys?: string[]): Promise<MegaCouchDatabaseAllDocs>`
+
+- `keys` (array) – Return only documents that match the specified keys. Optional
+
+```typescript
+// -->Use: a new db
+const newdb$ = couchServer.use('starbucksnew');
+// -->Get all documents from databse
+const allDocs = await newdb$.allDocs();
+```
+
+## allUserDocs()
+Returns all the documents in the database except the `_` system docs
+> `allUserDocs(keys?: string[]): Promise<MegaCouchDatabaseAllDocs>`
+
+- `keys` (array) – Return only documents that match the specified keys. Optional
+
+```typescript
+// -->Use: a new db
+const newdb$ = couchServer.use('starbucksnew');
+// -->Get documents from databse
+const allUserDocs = await newdb$.allUserDocs();
+```
+
+## bulkGetRaw()
+Returns all the documents in bulk
+> `bulkGetRaw(docs?: {id: string, rev?: string, atts_since?: string}[], listAllRevs = false): Promise<{results: MegaCouchDatabaseBulkGetDoc[]}>`
+
+- `docs` (array)
+- `listAllRevs` (boolean)
+
+```typescript
+// -->Use: a new db
+const newdb$ = couchServer.use('starbucksnew');
+// -->Get documents from databse
+const allDocs = await newdb$.bulkGetRaw();
+```
