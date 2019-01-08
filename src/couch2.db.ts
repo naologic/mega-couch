@@ -11,7 +11,7 @@ import {
   MegaQueryExplainFindResponse,
   MegaQueryFind,
   MegaQueryFindResponse,
-  MegaCouchDocumentInfo, MegaCouchDocumentPutParams,
+  MegaCouchDocumentInfo, MegaCouchDocumentPutParams, MegaQuerySelector,
 } from './couchdb.interface';
 import { Couch2Doc } from './couch2.doc';
 import { logg } from '../../system/utils';
@@ -106,6 +106,7 @@ export class Couch2Db {
    * @param listAllRevs
    * @param removeSystemDocs
    */
+  // tslint:disable-next-line:max-line-length
   public async bulkGet(docs?: {id: string, rev?: string, atts_since?: string}[], listAllRevs = false, removeSystemDocs = false): Promise<MegaCouchDocument[]> {
     return this.bulkGetRaw(docs, listAllRevs)
       .then(d => {
@@ -232,9 +233,10 @@ export class Couch2Db {
    * @param data
    * @param params
    */
-  public async docUpdate(docId: string, data: MegaCouchDocument, params?: MegaCouchDocumentPutParams): Promise<MegaDocumentCreated> {
-    // todo -->Check: rev (needs revision number to update)
-
+  public async docUpdate(data: MegaCouchDocument, params: MegaCouchDocumentPutParams): Promise<MegaDocumentCreated> {
+    // data must have correct id and rev for update to work.
+    data._id = params.id;
+    data._rev = params.rev;
     return this.server.post<MegaDocumentCreated>(`${this.name}`, data,  {params});
   }
 
@@ -257,21 +259,31 @@ export class Couch2Db {
     return this.server.copy(`${this.name}/${docId}`);
   }
 
-
-
-
-
   public async findRaw(req: MegaQueryFind): Promise<MegaQueryFindResponse> {
     return this.server.post(`${this.name}/_find`, req);
   }
 
+  public async findOne(selector: MegaQuerySelector): Promise<MegaCouchDocument> {
+    const response = await this.findRaw({ selector, limit: 1 });
+    if (response.docs.length === 1) {
+      return response.docs[0];
+    } else {
+      return Promise.reject('Query returned no results');
+    }
+  }
+
+  public async findFirst(selector: MegaQuerySelector): Promise<MegaCouchDocument> {
+    try {
+      return this.findOne(selector);
+    } catch (err) {
+      return null;
+    }
+  }
+  
+
   public async explainFind(req: MegaQueryFind): Promise<MegaQueryExplainFindResponse> {
     return this.server.post(`${this.name}/_explain`, req);
   }
-
-
-
-
 
   /**
    * Destroy this db
