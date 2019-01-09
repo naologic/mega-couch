@@ -295,7 +295,11 @@ export class Couch2Db {
   public async findFirstOrThrow(selector: MegaQuerySelector, sort?: MegaQuerySortOrder): Promise<MegaCouchDocument> {
     const findRequest = {selector, sort: undefined};
     if (sort) {
+      if (!Array.isArray(sort)) {
       findRequest.sort = [sort];
+      } else {
+        findRequest.sort = sort;
+      }
     }
     const response = await this.findRaw(findRequest);
     if (response.docs.length > 0) {
