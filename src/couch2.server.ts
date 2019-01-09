@@ -125,7 +125,16 @@ export class Couch2Server {
 
     return this.sendRequest<T>(requestUrl, config, true);
   }
-  public async checkConnection(): Promise<string> {
+  public async checkConnection(): Promise<boolean> {
+    try{
+      await this.checkConnectionOrThrow();
+      return true;
+    }
+    catch(err){
+      return false;
+    }
+  }
+  public async checkConnectionOrThrow(): Promise<string> {
     const config = {method: 'GET'};
     try {
       await this.sendRequest('', config, false);
