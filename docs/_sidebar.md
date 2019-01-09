@@ -16,6 +16,19 @@
   * [docExists](database/crud.md#docExists)
   * [docCreate](database/crud.md#docCreate)
   * [docCreateWithId](database/crud.md#docCreateWithId)
+  * [docUpdate](database/crud.md#docUpdate)
+  * [docDelete](database/crud.md#docDelete)
+  * [docCopy](database/crud.md#docCopy)
+  * [findRaw](database/crud.md#findRaw)
+  * [explainFind](database/crud.md#explainFind)
+  * [destroy](database/crud.md#destroy)
+  * [replicateTo](database/crud.md#replicateTo)
+  * [replicateFrom](database/crud.md#replicateFrom)
+  * [setRevsLimit](database/crud.md#setRevsLimit)
+
+
+  
+
   
   
   

@@ -245,15 +245,133 @@ const newDoc = await newdb$.docCreateWithId();
 
 ## docUpdate()
 Update an existing document
-> `docUpdate(docId: string, data: MegaCouchDocument, params: MegaCouchDocumentPutParams): Promise<MegaDocumentCreated>`
+> `docUpdate(data: MegaCouchDocument, params: MegaCouchDocumentPutParams): Promise<MegaDocumentCreated>`
 
-- `docId` (string)
 - `data`
 - `params` 
 
 ```typescript
 // -->Use: a new db
 const newdb$ = couchServer.use('starbucksnew');
-// -->Create:
-const newDoc = await newdb$.docCreateWithId();
+// -->Update:
+const updatedDoc = await newdb$.docUpdate();
 ```
+
+## docDelete()
+ Delete a specific revision of a document
+> `docDelete(docId: string, rev: string, params?: {batch?: 'ok', rev?: string}): Promise<MegaDocumentCreated>`
+
+- `docId` (string)
+- `rev` (string)
+- `params` 
+
+```typescript
+// -->Use: a new db
+const newdb$ = couchServer.use('starbucksnew');
+// --Delete a document:
+const deletedDoc = await newdb$.docDelete();
+```
+## docCopy()
+  Copies an existing document to a new or existing document
+
+## findRaw()
+ Find documents using a declarative JSON querying syntax
+> `findRaw(req: MegaQueryFind): Promise<MegaQueryFindResponse>`
+
+ ```typescript
+ MegaQueryFind example
+    {
+          "selector": {
+              "year": {"$gt": 2010}
+          },
+          "fields": ["_id", "_rev", "year", "title"],
+          "sort": [{"year": "asc"}],
+          "limit": 2,
+          "skip": 0,
+          "execution_stats": true
+    }
+```
+
+
+```typescript
+// -->Use: a new db
+const newdb$ = couchServer.use('starbucksnew');
+// --Find a document:
+const foundDoc = await newdb$.findRaw();
+```
+
+## explainFind()
+Shows which index is being used by the query. Parameters are the same as `findRaw()`
+> `explainFind(req: MegaQueryFind): Promise<MegaQueryExplainFindResponse>`
+
+- `req: MegaQueryFind`
+
+
+```typescript
+// -->Use: a new db
+const newdb$ = couchServer.use('starbucksnew');
+// -->Explain find:
+const explainFind = await newdb$.explainFind();
+```
+
+## destroy()
+Destroy this database
+> `destroy(): Promise<boolean>`
+
+
+```typescript
+// -->Use: a new db
+const newdb$ = couchServer.use('starbucksnew');
+// -->Destroy:
+const destroyDb = await newdb$.destroy();
+```
+
+## replicateTo()
+Replicate from local to remote
+> `replicateTo(db: Couch2Db, _id?: string, createTarget = true, continuous = false): Promise<MegaDocumentCreated>`
+
+- `db`
+- `_id`
+- `continuous`
+- `createTarget`
+
+
+```typescript
+// -->Use: a new db
+const newdb$ = couchServer.use('starbucksnew');
+// -->Replicate:
+const replicateDb = await newdb$.replicateTo();
+```
+
+## replicateFrom()
+Replicate from remote to local
+> `replicateFrom(db: Couch2Db, _id?: string, createTarget = true, continuous = false): Promise<MegaDocumentCreated>`
+
+- `db`
+- `_id`
+- `createTarget`
+- `continuous`
+
+
+```typescript
+// -->Use: a new db
+const newdb$ = couchServer.use('starbucksnew');
+// -->Replicate:
+const replicateDb = await newdb$.replicateFrom();
+```
+
+## setRevsLimit()
+Sets the maximum number of document revisions that will be tracked by CouchDB, even after compaction has occurred.
+> `setRevsLimit(dbName: string, limit: number): Promise<boolean>`
+
+- `dbName` (string)
+- `limit` (number)
+
+```typescript
+// -->Use: a new db
+const newdb$ = couchServer.use('starbucksnew');
+// -->Set rev limit:
+const revisionsLimit = await newdb$.setRevsLimit();
+```
+
+ 
