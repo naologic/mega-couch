@@ -16,6 +16,9 @@ import {
 import { Couch2Doc } from './couch2.doc';
 import { logg } from '../../system/utils';
 import { AxiosResponse } from 'axios';
+import { SortOrder } from 'nano';
+import { MegaQuerySortOrder } from './couchdb.interface';
+import { throwError } from 'rxjs';
 
 
 export class Couch2Db {
@@ -263,23 +266,44 @@ export class Couch2Db {
     return this.server.post(`${this.name}/_find`, req);
   }
 
+
   public async findOne(selector: MegaQuerySelector): Promise<MegaCouchDocument> {
+    try {
+      return this.findOneOrThrow(selector);
+    } catch (err) {
+      return null;
+    }
+  }
+
+  public async findOneOrThrow(selector: MegaQuerySelector): Promise<MegaCouchDocument> {
     const response = await this.findRaw({ selector, limit: 1 });
     if (response.docs.length === 1) {
       return response.docs[0];
     } else {
-      return Promise.reject('Query returned no results');
+      throw Error('Query returned no results');
     }
   }
 
-  public async findFirst(selector: MegaQuerySelector): Promise<MegaCouchDocument> {
+  public async findFirst(selector: MegaQuerySelector, sort: MegaQuerySortOrder): Promise<MegaCouchDocument> {
     try {
-      return this.findOne(selector);
+      return this.findFirstOrThrow(selector, sort);
     } catch (err) {
       return null;
     }
   }
   
+  public async findFirstOrThrow(selector: MegaQuerySelector, sort?: MegaQuerySortOrder): Promise<MegaCouchDocument> {
+    const findRequest = {selector, sort: undefined};
+    if (sort) {
+      findRequest.sort = [sort];
+    }
+    const response = await this.findRaw(findRequest);
+    if (response.docs.length > 0) {
+      return response.docs[0];
+    } else {
+      throw Error('Query returned no results');
+    }
+  }
 
   public async explainFind(req: MegaQueryFind): Promise<MegaQueryExplainFindResponse> {
     return this.server.post(`${this.name}/_explain`, req);
