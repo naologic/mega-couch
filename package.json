@@ -2,11 +2,11 @@
   "name": "mega-couch",
   "version": "1.0.0",
   "description": "Couchdb library for typescript",
-  "main": "index.js",
   "directories": {
     "doc": "docs"
   },
   "scripts": {
+    "build": "rm -rf dist/ && tsc --sourceMap false",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
