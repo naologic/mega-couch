@@ -1,0 +1,38 @@
+{
+  "name": "mega-couch",
+  "version": "1.0.0",
+  "description": "Couchdb library for typescript",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/naologic/mega-couch.git"
+  },
+  "keywords": [
+    "couchdb",
+    "typescript",
+    "nodejs"
+  ],
+  "author": "c3zar",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/naologic/mega-couch/issues"
+  },
+  "homepage": "https://github.com/naologic/mega-couch#readme",
+  "dependencies": {
+    "axios": "^0.18.0",
+    "crypto": "^1.0.1",
+    "lodash": "^4.17.11",
+    "rxjs": "^6.3.3"
+  },
+  "devDependencies": {
+    "@types/node": "^10.12.18",
+    "ts-node": "^7.0.1",
+    "tslint": "^5.12.1"
+  }
+}

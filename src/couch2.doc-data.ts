@@ -1,7 +1,6 @@
 import { MegaCouchDocument } from './couchdb.interface';
 import { BehaviorSubject, throwError } from 'rxjs';
 import { merge, clone } from 'lodash';
-import { cloneClass, logg } from '../../system/utils';
 import { containsSystemIndex } from './couch2.static';
 
 export class Couch2DocData<D = any> {

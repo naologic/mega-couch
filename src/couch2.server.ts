@@ -1,7 +1,6 @@
 import axios, { AxiosRequestConfig } from 'axios';
 import { isNumber, merge } from 'lodash';
 import { Couch2Db } from './couch2.db';
-import { logg } from '../../system/utils';
 import { MegaCouchServerConfig, MegaCouchDatabaseInfo, MegaCouchDocument } from './couchdb.interface';
 
 
@@ -207,8 +206,6 @@ export class Couch2Server {
 
     // -->Make: config
     const requestConfig: AxiosRequestConfig = merge<AxiosRequestConfig, AxiosRequestConfig>(defaultConfig, config || {});
-
-    logg(requestConfig, requestUrl);
 
     try {
       // -->Make: request

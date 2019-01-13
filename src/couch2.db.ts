@@ -14,9 +14,7 @@ import {
   MegaCouchDocumentInfo, MegaCouchDocumentPutParams, MegaQuerySelector,
 } from './couchdb.interface';
 import { Couch2Doc } from './couch2.doc';
-import { logg } from '../../system/utils';
 import { AxiosResponse } from 'axios';
-import { SortOrder } from 'nano';
 import { MegaQuerySortOrder } from './couchdb.interface';
 import { throwError } from 'rxjs';
 
@@ -240,6 +238,7 @@ export class Couch2Db {
     // data must have correct id and rev for update to work.
     data._id = params.id;
     data._rev = params.rev;
+
     return this.server.post<MegaDocumentCreated>(`${this.name}`, data,  {params});
   }
 
@@ -277,7 +276,7 @@ export class Couch2Db {
 
   public async findOneOrThrow(selector: MegaQuerySelector): Promise<MegaCouchDocument> {
     const response = await this.findRaw({ selector, limit: 1 });
-    if (response.docs.length === 1) {
+    if (response && Array.isArray(response.docs) && response.docs.length === 1) {
       return response.docs[0];
     } else {
       throw Error('Query returned no results');

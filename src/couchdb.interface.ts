@@ -1,4 +1,3 @@
-import { MangoSelector, MangoValue, SortOrder } from 'nano';
 
 export interface CouchOK {
   ok: boolean;

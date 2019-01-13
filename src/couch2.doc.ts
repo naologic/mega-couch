@@ -1,12 +1,12 @@
 import { Couch2Db } from './couch2.db';
 import { MegaCouchDocument, MegaCouchDocumentGetParams, MegaCouchDocumentInfo, MegaCouchDocumentPutParams, MegaDocumentCreated } from './couchdb.interface';
-import { logg, randomHash } from '../../system/utils';
 import { Couch2DocData } from './couch2.doc-data';
 import { clone } from 'lodash';
+import {randomHash} from "./utils";
 
 
 export class Couch2Doc<D = any> {
-  public params: { get: MegaCouchDocumentGetParams, set: MegaCouchDocumentPutParams } = {get: {}, set: {}};
+  public params: { get: MegaCouchDocumentGetParams, set: MegaCouchDocumentPutParams } = {get: null, set: null};
   public data: Couch2DocData<D>;
   public _rev: string;
   private _id: string;
@@ -24,7 +24,7 @@ export class Couch2Doc<D = any> {
   }
 
   public done(): void {
-    this.params = {get: {}, set: {}};
+    this.params = {get: null, set: null};
   }
 
   public with_revisions() { this.params.get.revs_info = true; return this; }
@@ -127,6 +127,7 @@ export class Couch2Doc<D = any> {
     // -->Data: data
     const data = this.data.value();
 
+    // ???????????????
     return this.db.docUpdate(this._id, data);
   }
 
@@ -142,6 +143,7 @@ export class Couch2Doc<D = any> {
     // -->Data: data
     const data = this.data.value();
 
+    // ???????????????
     return this.db.docUpdate(this._id, data, {rev});
   }
 
@@ -189,7 +191,7 @@ export class Couch2Doc<D = any> {
   public async deleteLastRev(): Promise<MegaDocumentCreated> {
     // -->Get: last rev
     const doc = await this.info();
-logg(doc)
+
     return this.db.docDelete(this._id, doc._rev);
   }
 
