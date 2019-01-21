@@ -11,8 +11,7 @@ import {
   MegaQueryExplainFindResponse,
   MegaQueryFind,
   MegaQueryFindResponse,
-  MegaCouchDocumentInfo, MegaCouchDocumentPutParams, MegaQuerySelector,
-} from './couchdb.interface';
+  MegaCouchDocumentInfo, MegaCouchDocumentPutParams, MegaQuerySelector, MegaCouchDesignDocument } from './couchdb.interface';
 import { Couch2Doc } from './couch2.doc';
 import { AxiosResponse } from 'axios';
 import { MegaQuerySortOrder } from './couchdb.interface';
@@ -29,6 +28,7 @@ export class Couch2Db {
   ) {
   }
 
+  
   public use<T>(docId = null): Couch2Doc<T> {
     return new Couch2Doc<T>(docId, this);
   }
@@ -401,4 +401,66 @@ export class Couch2Db {
       return await false;
     }
   }
+
+  /**
+   * Create design document
+   * @param designDoc name of the design document
+   * @param data design document object
+   */
+  public async docViewCreateWithId( designDoc: string, data: MegaCouchDesignDocument ): Promise<MegaDocumentCreated> {
+    return this.server.put(`${this.name}/_design/${designDoc}`, data);
+  }
+
+  public async docViewUpdate( designDoc: string, data: MegaCouchDesignDocument ): Promise<MegaDocumentCreated> {
+    return this.docViewCreateWithId( designDoc, data);
+  }
+
+  /**
+   * Delete a specific revision of a design document
+   *
+   * @param docId
+   * @param rev
+   * @param params
+   */
+
+  public async docViewDelete( docId: string, rev: string, params?: {batch?: 'ok', rev?: string}): Promise<MegaDocumentCreated> {
+    params = params ? {rev, batch: params.batch} : {rev};
+    return this.server.delete<MegaDocumentCreated>(`${this.name}/_design/${docId}`, {params});
+  }
+
+  /**
+   * Copy a specific revision of a design document
+   *
+   * @param docId
+   * @param rev
+   * @param params
+   */
+
+  public async docViewCopy( docId: string, rev: string, params?: {batch?: 'ok', rev?: string} ): Promise<MegaDocumentCreated> {
+    params = params ? {rev, batch: params.batch} : {rev};
+    return this.server.copy(`${this.name}/_design/${docId}`);
+  }
+
+  /**
+   * Get view from db
+   * @param designDoc name of the design document
+   * @param view name of the view defined in the views field of the design document
+   */
+
+  public async callView( designDoc: string, view: string ): Promise<MegaCouchDocument> {
+    try {
+      return await this.callViewOrThrow(designDoc, view);
+    } catch (err) {
+      return null;
+    }
+   }
+
+   public async callViewOrThrow( designDoc: string, view: string ): Promise<MegaCouchDocument> {
+    try {
+      const viewResponse = await this.server.get(`${this.name}/_design/${designDoc}/_view/${view}`) as MegaCouchDatabaseAllDocs;
+      return viewResponse.rows;
+    } catch (err) {
+          Promise.reject('View does not exist');
+        }
+   }
 }
