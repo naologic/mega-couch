@@ -279,3 +279,13 @@ export interface MegaQueryExplainFindResponse {
     conflicts: boolean;
   };
 }
+
+export interface IUserRole {
+  names: string[];
+  roles: string[];
+}
+
+export interface MegaCouchAuthorizationDocument {
+  admins: IUserRole;
+  members: IUserRole;
+}

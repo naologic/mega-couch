@@ -1,7 +1,7 @@
 import axios, { AxiosRequestConfig } from 'axios';
 import { isNumber, merge } from 'lodash';
 import { Couch2Db } from './couch2.db';
-import { MegaCouchServerConfig, MegaCouchDatabaseInfo, MegaCouchDocument } from './couchdb.interface';
+import { MegaCouchServerConfig, MegaCouchDatabaseInfo, MegaCouchDocument, MegaDocumentCreated } from './couchdb.interface';
 
 
 
@@ -304,4 +304,32 @@ export class Couch2Server {
 
     return name;
   }
+
+  /**
+   * Create user
+   */
+  public async createUser(type: 'dbreader'|'dbwriter'| 'user', username: string, password: string, roles: string[] ): Promise<MegaDocumentCreated> {
+     
+    const exists = await this.head<boolean>('_users');
+
+    if ( ! exists ) {
+      this.dbCreate('_users');
+    }
+    const data = {
+       _id: `org.couchdb.user:${username}`,
+       name: username,
+       type,
+       roles,
+       password,
+   };
+    return this.put(`_users/org.couchdb.user:${username}`, data);
+   }
+
+ /**
+  * Delete user
+  */
+ public async deleteUser( docId: string, rev: string, params?: {batch?: 'ok', rev?: string}): Promise<MegaDocumentCreated> {
+   params = params ? {rev, batch: params.batch} : {rev};
+   return this.delete<MegaDocumentCreated>(`_users/${docId}`, {params});
+ }
 }
