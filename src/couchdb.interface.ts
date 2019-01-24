@@ -280,6 +280,7 @@ export interface MegaQueryExplainFindResponse {
   };
 }
 
+
 export interface IUserRole {
   names: string[];
   roles: string[];
@@ -288,4 +289,136 @@ export interface IUserRole {
 export interface MegaCouchAuthorizationDocument {
   admins: IUserRole;
   members: IUserRole;
+
+export  interface MegaCouchDesignDocumentFilter {
+  ( doc: MegaCouchDocument, req: any ): boolean;
+}
+
+export  interface MegaCouchDesignDocumentList {
+  ( head: {total_rows: number, offset: number}, req: any ): string;
+}
+
+export  interface MegaCouchDesignDocumentShow {
+  ( doc: MegaCouchDocument, req: any ): string | any;
+}
+
+export  interface MegaCouchDesignDocumentUpdate {
+  ( doc: MegaCouchDocument, req: any ): [];
+}
+
+export  interface MegaCouchDesignDocumentValidate {
+  ( newDoc: MegaCouchDocument, oldDoc: MegaCouchDocument , userCtx: any, secObj: any ): void;
+}
+
+export interface MegaCouchDesignDocumentView {
+  ( doc: MegaCouchDocument ): void;
+}
+
+export  interface MegaCouchDesignDocument {
+    language?: string; // Defines Query Server key to process design document functions. Default is Javascript
+    options?: any; // (object): View’s default options
+
+  /**
+   * @param doc The document that is being processed
+   * @param req – Request object
+   * Returns:Boolean value: true means that doc passes the filter rules, false means that it does not.
+   * @example
+   *     function(doc, req){
+   * // we need only `mail` documents
+   * if (doc.type != 'mail'){
+   *    return false;
+   * }
+   * // we're interested only in `new` ones
+   * if (doc.status != 'new'){
+   *     return false;
+   * }
+   * return true; // passed!
+   * }
+   */
+    filters?: {[key: string]: MegaCouchDesignDocumentFilter} //  Filter functions mostly act like Show Functions and List Functions: they format, or filter the changes feed.
+
+  /**
+   * @param head // contains information about the view
+   * example
+   *  {total_rows:10, offset:0}
+   * @param req – Request object
+   * Returns:Last chunk(string)
+   *
+   * @example
+   * // The following list function formats the view and represents it as a very simple HTML page:
+   *     function(head, req) {
+   * start({
+   * 'headers': {
+   *     'Content-Type': 'text/html'
+   * }
+   * });
+   * send('<html><body><table>');
+   * send('<tr><th>ID</th><th>Key</th><th>Value</th></tr>');
+   * while(row = getRow()){
+   *    send(''.concat(
+   *        '<tr>',
+   *        '<td>' + toJSON(row.id) + '</td>',
+   *         '<td>' + toJSON(row.key) + '</td>',
+   *         '<td>' + toJSON(row.value) + '</td>',
+   *         '</tr>'
+   *     ));
+   * }
+   * send('</table></body></html>');
+   * }
+   */
+    lists?: {[key: string]: MegaCouchDesignDocumentList}; // While Show Functions are used to customize document presentation, List Functions are used for the same purpose, but on View Functions results.
+
+    rewrites?: string | any[]; // (array or string): Rewrite rules definition
+
+  /**
+   * @param doc – The document that is being processed; may be omitted.
+   * @param req – Request object
+   * Returns: Response object (Object or string)
+   *  @example
+   *  function(doc, req){
+   * if (doc) {
+   *    return "Hello from " + doc._id + "!";
+   * } else {
+   *   return "Hello, world!";
+   * }
+   * }
+   */
+    shows?: {[key: string]: MegaCouchDesignDocumentShow}; // Show functions are used to represent documents in various formats, commonly as HTML pages with nice formatting. They can also be used to run server-side functions without requiring a pre-existing document.
+
+  /**
+   * @param doc – The document that is being processed; may be omitted.
+   * @param req – Request object
+   *  Returns: Two-element array: the first element is the (updated or new) document, which is committed to the database. If the first element is null no document will be committed to the database. If you are updating an existing document, it should already have an _id set, and if you are creating a new document, make sure to set its _id to something, either generated based on the input or the req.uuid provided. The second element is the response that will be sent back to the caller.
+   *  @example
+   * function(doc, req){
+   * if (!doc){
+   *    if ('id' in req && req['id']){
+   *         // create new document
+   *         return [{'_id': req['id']}, 'New World']
+   *   }
+   *     // change nothing in database
+   *     return [null, 'Empty World']
+   * }
+   * doc['world'] = 'hello';
+   * doc['edited_by'] = req['userCtx']['name']
+   * return [doc, 'Edited World!']
+   * }
+   */
+
+    updates?: {[key: string]: MegaCouchDesignDocumentUpdate}; // Update handlers are functions that clients can request to invoke server-side logic that will create or update a document
+
+    // http://guide.couchdb.org/editions/1/en/validation.html
+    validate_doc_update?: {[key: string]: MegaCouchDesignDocumentValidate}; //  Validate Document Update Functions prevent invalid or unauthorized document update requests from being stored
+
+  /**
+   * @param doc – The document that is being processed
+   * function (doc) {
+   *   if (doc.type === 'post' && doc.tags && Array.isArray(doc.tags)) {
+   *     doc.tags.forEach(function (tag) {
+   *       emit(tag.toLowerCase(), 1);
+   *     });
+   *  }
+   * }
+   */
+    views?:  {[key: string]: MegaCouchDesignDocumentView } 
 }
