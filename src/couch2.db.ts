@@ -11,7 +11,7 @@ import {
   MegaQueryExplainFindResponse,
   MegaQueryFind,
   MegaQueryFindResponse,
-  MegaCouchDocumentInfo, MegaCouchDocumentPutParams, MegaQuerySelector, MegaCouchDesignDocument } from './couchdb.interface';
+  MegaCouchDocumentInfo, MegaCouchDocumentPutParams, MegaQuerySelector, MegaCouchDesignDocument, MegaCouchAuthorizationDocument } from './couchdb.interface';
 import { Couch2Doc } from './couch2.doc';
 import { AxiosResponse } from 'axios';
 import { MegaQuerySortOrder } from './couchdb.interface';
@@ -403,6 +403,63 @@ export class Couch2Db {
   }
 
   /**
+   * create or update security document for db, all names and roles are added to existing  names and roles
+   * @param data data with users and roles
+   */
+  public async addUsersAuthorization(data: MegaCouchAuthorizationDocument): Promise<MegaCouchAuthorizationDocument> {
+    const existingAuthorizationDocument =  await this.docGet('_security');
+    if (Object.keys(existingAuthorizationDocument).length === 0) {
+     return this.server.put(`${this.name}/_security`, data);
+    }
+    existingAuthorizationDocument.admins.names = this.mergeArrays(existingAuthorizationDocument.admins.names, data.admins.names);
+    existingAuthorizationDocument.admins.roles = this.mergeArrays(existingAuthorizationDocument.admins.roles, data.admins.roles);
+    existingAuthorizationDocument.members.names = this.mergeArrays(existingAuthorizationDocument.members.names, data.members.names);
+    existingAuthorizationDocument.members.roles = this.mergeArrays(existingAuthorizationDocument.members.roles, data.members.names);
+    return this.server.put(`${this.name}/_security`, existingAuthorizationDocument);
+
+ }
+ /**
+  * update security document for db, all existing names and roles are replaced
+  * @param data data with users and roles
+  */
+ public async updateUsersAuthorization(data: MegaCouchAuthorizationDocument): Promise<MegaCouchAuthorizationDocument> {
+    return this.server.put(`${this.name}/_security`, data);
+ }
+
+ /**
+  * update security document for db, delete specific names and roles from  the existing ones
+  * @param data data with users and roles to be deleted
+  */
+
+ public async deleteUserAuthorization(data: MegaCouchAuthorizationDocument): Promise<MegaCouchAuthorizationDocument> {
+   const existingAuthorizationDocument =  await this.docGet('_security');
+   console.log(existingAuthorizationDocument);
+   existingAuthorizationDocument.admins.names = this.filterArrays(existingAuthorizationDocument.admins.names, data.admins ? data.admins.names : undefined);
+   existingAuthorizationDocument.admins.roles = this.filterArrays(existingAuthorizationDocument.admins.roles, data.admins ? data.admins.roles : undefined);
+   existingAuthorizationDocument.members.names = this.filterArrays(existingAuthorizationDocument.members.names, data.members ?  data.members.names : undefined);
+   existingAuthorizationDocument.members.roles = this.filterArrays(existingAuthorizationDocument.members.roles, data.members ?  data.members.roles : undefined);
+   return this.server.put(`${this.name}/_security`, existingAuthorizationDocument);
+
+ }
+  private mergeArrays(arr1: string[], arr2: string[]): string[] {
+    if (!arr1) {
+      return arr2;
+    }
+    if (!arr2) {
+      return arr1;
+    }
+    const mergedArrays = arr1.concat(arr2);
+    const uniqueValuesArray = Array.from(new Set(mergedArrays));
+    return uniqueValuesArray;
+  }
+   private filterArrays(arr1: string[], arr2: string[]): string[] {
+     if (!arr2) {
+       return arr1;
+     }
+     const filteredArray = arr1.filter( (value, index, arr) => arr2.indexOf(value) === -1);
+     return filteredArray;
+   }
+  
    * Create design document
    * @param designDoc name of the design document
    * @param data design document object

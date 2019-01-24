@@ -280,6 +280,16 @@ export interface MegaQueryExplainFindResponse {
   };
 }
 
+
+export interface IUserRole {
+  names: string[];
+  roles: string[];
+}
+
+export interface MegaCouchAuthorizationDocument {
+  admins: IUserRole;
+  members: IUserRole;
+
 export  interface MegaCouchDesignDocumentFilter {
   ( doc: MegaCouchDocument, req: any ): boolean;
 }
